@@ -94,6 +94,11 @@ func (ec *Client) BlockByNumber(ctx context.Context, number *big.Int) (*types.Bl
 	return ec.getBlock(ctx, "eth_getBlockByNumber", toBlockNumArg(number), true)
 }
 
+// BlockByNumberV2 provider more flexible way to get a block. If number is nil, the tag known block is returned.
+func (ec *Client) BlockByNumberV2(ctx context.Context, number *big.Int, tag string) (*types.Block, error) {
+	return ec.getBlock(ctx, "eth_getBlockByNumber", toBlockNumArgV2(number, tag), true)
+}
+
 // BlockNumber returns the most recent block number
 func (ec *Client) BlockNumber(ctx context.Context) (uint64, error) {
 	var result hexutil.Uint64
@@ -637,6 +642,13 @@ func toBlockNumArg(number *big.Int) string {
 	}
 	// It's negative and large, which is invalid.
 	return fmt.Sprintf("<invalid %d>", number)
+}
+
+func toBlockNumArgV2(number *big.Int, tag string) string {
+	if number == nil {
+		return tag
+	}
+	return toBlockNumArg(number)
 }
 
 func toCallArg(msg ethereum.CallMsg) interface{} {
